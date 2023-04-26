@@ -50,13 +50,21 @@ class DataFile:
         location in the file, and the trace as a numpy array.
         """
 
-        # Read the 6 long-words of the event header
         try:
-            i0, i1, i2, i3, i4, i5 = fromfile(self.file, dtype='I', count=6)
+            if self.is742:
+                # Read the 8 long-words of the event header
+                i0, i1, i2, i3, i4, i5, i6, i7 = fromfile(self.file, dtype='I', count=8)
+            else:
+                # Read the 6 long-words of the event header
+                i0, i1, i2, i3, i4, i5 = fromfile(self.file, dtype='I', count=6)
         except ValueError:
             return None
 
-        eventSize = (i0 - 24) // 2
+        if self.is742:
+            eventSize = (i0-32)//4
+        else:
+            eventSize = (i0 - 24) // 2
+
         self.boardId = i1
 
         # Instantize a RawTrigger object
@@ -81,19 +89,19 @@ class DataFile:
         # convert from ticks to us since the beginning of the file
         trigger.triggerTime = trigger.triggerTimeTag * 8e-3
 
-        # create a data-type of unsigned 16bit integers with the correct ordering
-        dt = dtype('<H')
-
-        # Use numpy's fromfile to read binary data and convert into a numpy array all at once
-        trigger.trace = fromfile(self.file, dtype=dt, count=eventSize)
-
         if self.is742:
+            trigger.DC_offset = i6
+            trigger.Start_Index_Cell = i7
 
-            v_float = np.array(trigger.trace[::2], dtype=str)
-            v_float_new = np.array(["0."+item for item in v_float], dtype=np.float)
-            trigger.trace = v_float_new+ trigger.trace[1::2]
-            trigger.trace = trigger.trace[:1000]
-            # trigger.trace = trigger.trace[1::2]
+        if not self.is742:
+            # create a data-type of unsigned 16bit integers with the correct ordering
+            dt = dtype('<H')
+
+            # Use numpy's fromfile to read binary data and convert into a numpy array all at once
+            trigger.trace = fromfile(self.file, dtype=dt, count=eventSize)
+        else:
+            dt = dtype(np.float32)
+            trigger.trace = fromfile(self.file, dtype=dt, count=eventSize)
 
         return trigger
 
@@ -121,6 +129,10 @@ class RawTrigger:
         self.eventCounter = 0
         self.triggerTimeTag = 0
         self.triggerTime = 0
+
+        # Only for 742
+        self.DC_offset = 0
+        self.Start_Index_Cell = 0
 
         self.trace = array([])
         self.filePos = 0

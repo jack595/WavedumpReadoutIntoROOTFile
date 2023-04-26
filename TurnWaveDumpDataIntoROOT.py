@@ -84,6 +84,8 @@ def SaveWaveDumpDictIntoROOT(dict_wave:dict, path_output:str):
             length_wave = len(item[0])
             locals()[key] = array("I", length_wave*[0] )
             tree.Branch(key, locals()[key], f"{key}[{length_wave}]/I" )
+            length_waveform =np.empty(1, "int")
+            tree.Branch("length_waveform", length_waveform, "length_wave/I" )
         else:
             locals()[key] = np.empty(1, "float64" if key=="triggerTime" else "int")
             tree.Branch(key, locals()[key], f"{key}/"+("D" if key=="triggerTime" else "I"))
@@ -95,6 +97,7 @@ def SaveWaveDumpDictIntoROOT(dict_wave:dict, path_output:str):
             elif key=="waveform":
                 for k in range(length_wave):
                     locals()[key][k] = int(item[i][k])
+                length_waveform[0] = length_wave
             else:
                 locals()[key][0] = item[i]
         tree.Fill()
