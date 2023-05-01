@@ -77,6 +77,7 @@ class DataFile:
         trigger.eventCounter = i4
         trigger.triggerTimeTag = i5
 
+
         if trigger.triggerTimeTag < self.oldTimeTag:
             self.timeTagRollover += 1
             self.oldTimeTag = float(i5)
@@ -84,10 +85,21 @@ class DataFile:
             self.oldTimeTag = float(i5)
 
         # correcting triggerTimeTag for rollover
-        trigger.triggerTimeTag += self.timeTagRollover*(2**31)
+        if self.is742:
+            # GROUP TRIGGER TIME TAG records the Trigger arrival time into a 30‐bit number (steps of 8.5 ns). This is
+            # the physical trigger information of the event.
+            trigger.triggerTimeTag += self.timeTagRollover*(2**30)
+        else:
+            trigger.triggerTimeTag += self.timeTagRollover*(2**31)
 
         # convert from ticks to us since the beginning of the file
-        trigger.triggerTime = trigger.triggerTimeTag * 8e-3
+        if self.is742:
+            # For 742 Fast trigger, the time clock is 117.1875 MHz
+            trigger.triggerTime = trigger.triggerTimeTag * 8.533333333e-3
+        else:
+            # For 751, the clock is 125 MHz, which is 8 ns for each point, and the unit of trigger time is us, so the count
+            # should be times 8 ns to get the true time in us
+            trigger.triggerTime = trigger.triggerTimeTag * 8e-3
 
         if self.is742:
             trigger.DC_offset = i6
