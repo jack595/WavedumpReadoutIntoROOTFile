@@ -1,0 +1,13 @@
+To compile new_txt_tree.C and make binary executable, run
+
+>> make new_txt_tree
+
+Then the executable named "new_txt_tree" will be generated. 
+To convert a wave0.txt to ROOT under current directory, run 
+
+>> new_txt_tree ./wave0.txt ./event1.root
+
+event1.root will be saved in the current directory.
+
+Everytime any edits made to new_txt_tree.C, you need to repeat the first
+step to generate the executable again, so that the changes are updated.
