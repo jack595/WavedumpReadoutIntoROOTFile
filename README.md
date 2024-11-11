@@ -32,7 +32,8 @@ then directly use executed command
 2. For non-IHEP users: 
 Usually it shows up the error `./BinaryFileToROOT: error while loading shared libraries: libCore.so: cannot open shared object file: No such file or directory` when running the `./BinaryFileToROOT`. This usually results from the uninstalled ROOT in current enviroment. So it is needed to install ROOT to solve this error. An easy way to install is using conda:
 
-`conda activate myenv
+```
+conda activate myenv
 
 conda install -c conda-forge root
 
@@ -40,17 +41,18 @@ conda env list  # find the path to your root_env environment
 
 export LD_LIBRARY_PATH=/path/to/root_env/lib:$LD_LIBRARY_PATH
 
-# Then you are able to run the ./BinaryFileToROOT
-
 ./BinaryFileToROOT /mnt/e/Data/ ./try.root -1 # For example
-`  
+```
 
-So every time you need to run it, `LD_LIBRARY_PATH` is needed to set.
+**So every time you need to run it, `LD_LIBRARY_PATH` is needed to set.**
 
 How to complie this project:
-`cd DataReaderPublic/TurnRawToROOTCppVersion/
 
-make BinaryFileToROOT`
+```
+cd DataReaderPublic/TurnRawToROOTCppVersion/
+
+make BinaryFileToROOT
+```
 
 then you can get the executable file
 
